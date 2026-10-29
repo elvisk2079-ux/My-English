@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vocabulary 01 · One Plus One</title>
+<style>
+:root{
+  --bg:#f6f4ef; --card:#ffffff; --ink:#1f2430; --muted:#6b7080; --line:#e3dfd6;
+  --accent:#2f5d62; --accent-soft:#dbe8e6; --ok:#2e7d4f; --ok-soft:#dff2e6;
+  --bad:#b3413a; --bad-soft:#f8e1df; --warn:#b7791f;
+  --radius:16px; --shadow:0 2px 10px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#16181d; --card:#20232a; --ink:#ecebe7; --muted:#9aa0ad; --line:#30343d;
+    --accent:#7fb7b0; --accent-soft:#25393a; --ok:#6fcf97; --ok-soft:#1f3529;
+    --bad:#ef8a83; --bad-soft:#3d2422; --shadow:none; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:20px 16px 60px}
+header h1{font-size:1.5rem;margin:0 0 4px}
+header p{margin:0;color:var(--muted);font-size:.95rem}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0}
+nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);
+  padding:8px 14px;border-radius:999px;cursor:pointer;font-size:.92rem}
+nav button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+section{display:none}
+section.on{display:block}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;
+  border-radius:10px;cursor:pointer;font-size:.95rem}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin:12px 0 16px}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.speak{border:none;background:var(--accent-soft);color:var(--accent);border-radius:50%;
+  width:38px;height:38px;cursor:pointer;font-size:1.1rem;flex:none}
+/* flashcards */
+.flip{perspective:1200px;cursor:pointer;margin:8px 0 16px}
+.flip-inner{position:relative;min-height:260px;transition:transform .45s;transform-style:preserve-3d}
+.flip.turned .flip-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px}
+.face.back{transform:rotateY(180deg)}
+.big{font-size:1.7rem;font-weight:600;line-height:1.25}
+.ru{font-size:1.2rem}
+.def{color:var(--muted);font-style:italic;margin-top:10px}
+.ex{margin-top:12px;font-size:.98rem}
+.face .speak{margin-top:14px}
+/* match */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match button{text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  padding:12px;border-radius:10px;cursor:pointer;font-size:.95rem;min-height:52px}
+.match button.sel{border-color:var(--accent);background:var(--accent-soft)}
+.match button.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);cursor:default}
+.match button.wrong{background:var(--bad-soft);border-color:var(--bad);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+/* quiz */
+.prompt{font-size:1.15rem;margin:4px 0 16px}
+.opts{display:grid;gap:8px}
+.opts button{text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  padding:12px 14px;border-radius:10px;cursor:pointer;font-size:1rem}
+.opts button.right{background:var(--ok-soft);border-color:var(--ok)}
+.opts button.wrongc{background:var(--bad-soft);border-color:var(--bad)}
+input.ans{width:100%;font-size:1.1rem;padding:12px 14px;border-radius:10px;border:1px solid var(--line);
+  background:var(--bg);color:var(--ink);margin-bottom:10px}
+input.ans.good{border-color:var(--ok);background:var(--ok-soft)}
+input.ans.badi{border-color:var(--bad);background:var(--bad-soft)}
+.fb{min-height:24px;margin:8px 0}
+.fb.good{color:var(--ok)} .fb.badt{color:var(--bad)}
+.gap{display:inline-block;min-width:90px;border-bottom:2px solid var(--accent);margin:0 3px}
+.result{text-align:center;padding:20px 0}
+.result .score{font-size:2.2rem;font-weight:700;color:var(--accent)}
+.list{margin-top:24px}
+.list table{width:100%;border-collapse:collapse;font-size:.92rem}
+.list td{border-top:1px solid var(--line);padding:8px 6px;vertical-align:top}
+.list td:first-child{font-weight:600;white-space:nowrap}
+@media (max-width:560px){ .match{grid-template-columns:1fr 1fr} .big{font-size:1.35rem} .list td:first-child{white-space:normal} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Vocabulary 01</h1>
+  <p>Jojo Moyes, <i>One Plus One</i> — 31 слово и выражение · из пассива в актив</p>
+</header>
+
+<nav id="tabs">
+  <button data-t="cards" class="on">1 · Карточки</button>
+  <button data-t="match">2 · Пары</button>
+  <button data-t="defs">3 · Значение</button>
+  <button data-t="gaps">4 · Пропуски</button>
+  <button data-t="trans">5 · Перевод</button>
+  <button data-t="dict">6 · Диктант</button>
+  <button data-t="list">Список</button>
+</nav>
+
+<section id="cards" class="on"><div class="panel">
+  <div class="row" style="justify-content:space-between">
+    <div class="row">
+      <button class="btn" id="cDir">EN → RU</button>
+      <button class="btn" id="cShuf">Перемешать</button>
+      <button class="btn" id="cSlow">Скорость: обычная</button>
+    </div>
+    <span class="muted small" id="cCount"></span>
+  </div>
+  <div class="progress"><i id="cProg"></i></div>
+  <div class="flip" id="flip"><div class="flip-inner">
+    <div class="face front" id="cFront"></div>
+    <div class="face back" id="cBack"></div>
+  </div></div>
+  <div class="row" style="justify-content:center">
+    <button class="btn bad" id="cAgain">↺ Ещё раз</button>
+    <button class="btn" id="cTurn">Перевернуть</button>
+    <button class="btn ok" id="cKnow">Знаю ✓</button>
+  </div>
+  <p class="muted small" style="text-align:center;margin-top:14px">Нажмите на карточку, чтобы перевернуть. Пробел — перевернуть, ← ещё раз, → знаю.</p>
+</div></section>
+
+<section id="match"><div class="panel">
+  <div class="row" style="justify-content:space-between">
+    <b id="mTitle">Соедините пары</b><span class="muted small" id="mInfo"></span>
+  </div>
+  <div class="progress"><i id="mProg"></i></div>
+  <div class="match" id="mGrid"></div>
+  <div class="row" style="justify-content:center;margin-top:16px" id="mNext"></div>
+</div></section>
+
+<section id="defs"><div class="panel" id="defsBox"></div></section>
+<section id="gaps"><div class="panel" id="gapsBox"></div></section>
+<section id="trans"><div class="panel" id="transBox"></div></section>
+<section id="dict"><div class="panel" id="dictBox"></div></section>
+
+<section id="list"><div class="panel list">
+  <table id="lTable"></table>
+</div></section>
+</div>
+
+<script>
+const W = [
+ {key:"a knot of anxiety", en:"a knot of anxiety (in her stomach)", ru:"ком тревоги в животе; всё сжалось от волнения", def:"a tight, unpleasant feeling in your stomach when you are very worried", ex:"Waiting for the test results, she had ___ in her stomach.", gap:"a knot of anxiety"},
+ {key:"rota", en:"rota (a study period rota)", ru:"график дежурств, очерёдность (брит.)", def:"a list showing who has to do a particular job and when", ex:"Check the ___ — it's your turn to wash up tonight.", gap:"rota"},
+ {key:"a clench of panic", ru:"приступ паники (внутри всё сжалось)", def:"a sudden tight feeling of fear inside you", ex:"When she couldn't find her passport, she felt ___.", gap:"a clench of panic"},
+ {key:"frown", ru:"хмуриться; хмурый взгляд", def:"to bring your eyebrows together because you are worried, annoyed or thinking hard", ex:"He ___ at the bill, sure there was a mistake.", gap:"frowned"},
+ {key:"exceptionally gifted in", ru:"исключительно одарён(а) в чём-то", def:"having an unusually great natural ability in a subject", ex:"Her daughter is ___ maths — she's two years ahead of her class.", gap:"exceptionally gifted in"},
+ {key:"earmark", ru:"выделять, откладывать (деньги) на определённую цель", def:"to decide that money or something else will be used for a particular purpose", ex:"That money is ___ for the children's school trip.", gap:"earmarked"},
+ {key:"squint at the sky", ru:"щуриться, глядя на небо", def:"to look at something with your eyes partly closed, e.g. because of bright light", ex:"She ___ at the sky, trying to see the plane.", gap:"squinted"},
+ {key:"swoop", ru:"пикировать, налетать (о птице, самолёте)", def:"to fly down suddenly and quickly, especially to attack or catch something", ex:"A seagull ___ down and stole his sandwich.", gap:"swooped"},
+ {key:"forgo", ru:"отказываться от чего-то приятного, обходиться без", def:"to decide not to have or do something you would like", ex:"We decided to ___ a holiday this year and save the money.", gap:"forgo", alts:["forego"]},
+ {key:"numerical ability", ru:"способности к счёту, математические способности", def:"skill at working with numbers", ex:"The test checks verbal reasoning and ___.", gap:"numerical ability"},
+ {key:"relentless", ru:"неустанный, непрекращающийся, беспощадный", def:"never stopping or getting less strong", ex:"The ___ rain went on for a whole week.", gap:"relentless"},
+ {key:"energy-sapping", ru:"изматывающий, отнимающий все силы", def:"making you feel very tired and weak", ex:"Working two jobs and looking after kids is ___.", gap:"energy-sapping"},
+ {key:"immaculate", ru:"безупречный, безукоризненно чистый", def:"perfectly clean and tidy; without any mistakes", ex:"After she had cleaned it, the bathroom was ___.", gap:"immaculate"},
+ {key:"window ledge", ru:"подоконник (особ. наружный), карниз окна", def:"the narrow shelf along the bottom of a window", ex:"The cat was asleep on the ___ in the sun.", gap:"window ledge", alts:["windowledge","windowsill","window sill"]},
+ {key:"a pair of tongs", ru:"щипцы", def:"a tool with two arms joined at one end, used for picking things up", ex:"Use ___ to turn the sausages on the grill.", gap:"a pair of tongs", alts:["tongs"]},
+ {key:"every now and then", ru:"время от времени, изредка", def:"sometimes, but not regularly", ex:"___ she looked up from her book and smiled.", gap:"every now and then", alts:["every now and again"]},
+ {key:"cleaning crate", ru:"ящик с принадлежностями для уборки", def:"a box for carrying cleaning products and cloths from place to place", ex:"She carried her ___ from house to house.", gap:"cleaning crate"},
+ {key:"foam", ru:"пена; поролон", def:"a mass of small bubbles on a liquid; soft light material used in furniture", ex:"There was a thick layer of ___ on top of her cappuccino.", gap:"foam"},
+ {key:"dashboard", ru:"приборная панель (в машине)", def:"the panel in front of the driver that shows the speed, fuel level, etc.", ex:"A red warning light came on on the ___.", gap:"dashboard"},
+ {key:"upheaval", ru:"потрясение, резкая перемена, переворот", def:"a big change that causes a lot of confusion or worry", ex:"Moving to another country is a huge ___ for a family.", gap:"upheaval"},
+ {key:"dismay", ru:"смятение, тревога, разочарование; to my dismay — к моему ужасу", def:"a feeling of worry, disappointment or shock", ex:"To her ___, the last train had already left.", gap:"dismay"},
+ {key:"weed", ru:"сорняк; полоть; (разг.) травка", def:"a wild plant growing where you don't want it", ex:"The garden was full of ___.", gap:"weeds"},
+ {key:"reel", ru:"пошатнуться; быть в шоке, не прийти в себя (reel from)", def:"to feel very shocked or confused; to move unsteadily", ex:"She was still ___ from the news.", gap:"reeling"},
+ {key:"bemuse", ru:"озадачивать, сбивать с толку; bemused — озадаченный", def:"to make someone confused or slightly puzzled", ex:"He looked ___ by all the attention.", gap:"bemused"},
+ {key:"stray socks", ru:"непарные, потерявшиеся носки (stray — бродячий, отбившийся)", def:"socks that have lost their pair and are lying around", ex:"I found three ___ under the sofa.", gap:"stray socks"},
+ {key:"limbs", ru:"конечности (руки, ноги)", def:"arms and legs", ex:"After the marathon, all her ___ ached.", gap:"limbs"},
+ {key:"elongated", ru:"вытянутый, удлинённый", def:"longer and thinner than usual", ex:"In the evening sun, their shadows were ___ across the grass.", gap:"elongated"},
+ {key:"clutch", ru:"крепко сжимать, вцепиться", def:"to hold something tightly, often because you are afraid", ex:"She ___ her bag as she walked down the dark street.", gap:"clutched"},
+ {key:"two-point-four children", en:"it's not all two-point-four children", ru:"не всё как в «идеальной» семье с картинки (2,4 ребёнка — «средняя» семья)", def:"an idiom for the typical, 'perfect' family: two parents and their children", ex:"Real families aren't all ___ — there are single parents, step-families and more.", gap:"two-point-four children", alts:["two point four children","2.4 children"]},
+ {key:"altogether", ru:"совсем, полностью; в целом; всего", def:"completely; in total; considering everything", ex:"I'm not ___ sure he's telling the truth.", gap:"altogether"},
+ {key:"acquire", ru:"приобретать, получать (навык, вкус, вещь)", def:"to get or gain something, e.g. a skill, a habit or a taste", ex:"She ___ a taste for strong coffee in Italy.", gap:"acquired"}
+];
+W.forEach((w,i)=>{w.id=i; w.en=w.en||w.key; w.full=w.ex.replace("___",w.gap).replace(/^./,c=>c.toUpperCase());});
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm=s=>s.toLowerCase().replace(/[’‘`]/g,"'").replace(/[-‐–—]/g," ").replace(/[^a-z0-9' ]/g,"").replace(/\s+/g," ").trim();
+const strip=s=>s.replace(/^(a|an|the|to) /,"");
+function matches(input,answers){
+  const n=norm(input); if(!n) return false;
+  return answers.some(a=>{const m=norm(a);return n===m||strip(n)===strip(m);});
+}
+let rate=0.95, voice=null;
+function pickVoice(){
+  if(!("speechSynthesis" in window)) return;
+  const v=speechSynthesis.getVoices();
+  voice=v.find(x=>/en-GB/i.test(x.lang)&&/female|serena|kate|libby|sonia|google uk/i.test(x.name))
+     ||v.find(x=>/en-GB/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null;
+}
+if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function speak(t){
+  if(!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t); u.lang="en-GB"; u.rate=rate; if(voice) u.voice=voice;
+  speechSynthesis.speak(u);
+}
+const spBtn=t=>`<button class="speak" data-say="${esc(t)}" title="Озвучить">🔊</button>`;
+document.addEventListener("click",e=>{const b=e.target.closest("[data-say]");if(b){e.stopPropagation();speak(b.dataset.say);}});
+
+/* ---------- tabs ---------- */
+let current="cards";
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll("section").forEach(s=>s.classList.toggle("on",s.id===b.dataset.t));
+  current=b.dataset.t;
+});
+
+/* ---------- 1. flashcards ---------- */
+let cq=W.slice(), cKnown=0, dir="en";
+const flip=$("#flip");
+function renderCard(){
+  flip.classList.remove("turned");
+  $("#cProg").style.width=(cKnown/W.length*100)+"%";
+  $("#cCount").textContent=`выучено ${cKnown} из ${W.length} · осталось ${cq.length}`;
+  if(!cq.length){
+    $("#cFront").innerHTML=`<div class="big">Готово! 🎉</div><p class="muted">Все карточки пройдены. Переходите к упражнению 2.</p><button class="btn primary" onclick="resetCards()">Пройти заново</button>`;
+    $("#cBack").innerHTML=""; return;
+  }
+  const w=cq[0];
+  const enSide=`<div class="big">${esc(w.en)}</div>${spBtn(w.en)}`;
+  const ruSide=`<div class="ru">${esc(w.ru)}</div>`;
+  const details=`<div class="def">${esc(w.def)}</div><div class="ex">${esc(w.full)}</div>${spBtn(w.full)}`;
+  if(dir==="en"){ $("#cFront").innerHTML=enSide; $("#cBack").innerHTML=`<div class="big" style="font-size:1.2rem">${esc(w.en)}</div><div class="ru" style="margin-top:6px">${esc(w.ru)}</div>${details}`; }
+  else { $("#cFront").innerHTML=ruSide; $("#cBack").innerHTML=`<div class="big">${esc(w.en)}</div>${details}`; }
+}
+function turn(){ if(!cq.length) return; flip.classList.toggle("turned"); if(flip.classList.contains("turned")&&dir==="ru") speak(cq[0].en); }
+function know(){ if(!cq.length) return; cq.shift(); cKnown++; renderCard(); }
+function again(){ if(!cq.length) return; const w=cq.shift(); cq.splice(Math.min(3,cq.length),0,w); renderCard(); }
+function resetCards(){ cq=shuffle(W); cKnown=0; renderCard(); }
+flip.onclick=turn; $("#cTurn").onclick=turn; $("#cKnow").onclick=know; $("#cAgain").onclick=again;
+$("#cShuf").onclick=resetCards;
+$("#cDir").onclick=()=>{dir=dir==="en"?"ru":"en"; $("#cDir").textContent=dir==="en"?"EN → RU":"RU → EN"; renderCard();};
+$("#cSlow").onclick=()=>{rate=rate>0.8?0.7:0.95; $("#cSlow").textContent="Скорость: "+(rate>0.8?"обычная":"медленная");};
+document.addEventListener("keydown",e=>{
+  if(current!=="cards"||e.target.tagName==="INPUT") return;
+  if(e.code==="Space"){e.preventDefault();turn();}
+  if(e.key==="ArrowRight") know();
+  if(e.key==="ArrowLeft") again();
+});
+renderCard();
+
+/* ---------- 2. match pairs ---------- */
+let mRounds=[], mR=0, mSel=null, mErr=0, mDone=0;
+function startMatch(){
+  const s=shuffle(W); mRounds=[]; for(let i=0;i<s.length;i+=6) mRounds.push(s.slice(i,i+6));
+  if(mRounds.length>1&&mRounds[mRounds.length-1].length<3){const last=mRounds.pop();mRounds[mRounds.length-1].push(...last);}
+  mR=0; mErr=0; renderRound();
+}
+function renderRound(){
+  const set=mRounds[mR]; mSel=null; mDone=0; $("#mNext").innerHTML="";
+  $("#mTitle").textContent=`Раунд ${mR+1} из ${mRounds.length}`;
+  $("#mInfo").textContent=`ошибок: ${mErr}`;
+  $("#mProg").style.width=(mR/mRounds.length*100)+"%";
+  const L=shuffle(set), R=shuffle(set); let html="";
+  for(let i=0;i<set.length;i++){
+    html+=`<button data-side="L" data-id="${L[i].id}">${esc(L[i].en)}</button><button data-side="R" data-id="${R[i].id}">${esc(R[i].ru)}</button>`;
+  }
+  $("#mGrid").innerHTML=html;
+}
+$("#mGrid").onclick=e=>{
+  const b=e.target.closest("button"); if(!b||b.classList.contains("done")) return;
+  if(b.dataset.side==="L") speak(W[b.dataset.id].en);
+  if(!mSel||mSel.dataset.side===b.dataset.side){
+    if(mSel) mSel.classList.remove("sel");
+    mSel=b; b.classList.add("sel"); return;
+  }
+  if(mSel.dataset.id===b.dataset.id){
+    [mSel,b].forEach(x=>{x.classList.remove("sel");x.classList.add("done");});
+    mSel=null; mDone++;
+    if(mDone===mRounds[mR].length){
+      $("#mNext").innerHTML = mR<mRounds.length-1
+        ? `<button class="btn primary" id="mGo">Следующий раунд →</button>`
+        : `<div class="result"><div class="score">${mErr===0?"Без ошибок! 🎉":"Ошибок: "+mErr}</div><p class="muted">Все пары собраны.</p><button class="btn primary" id="mRe">Ещё раз</button></div>`;
+      if($("#mGo")) $("#mGo").onclick=()=>{mR++;renderRound();};
+      if($("#mRe")) $("#mRe").onclick=startMatch;
+      if(mR===mRounds.length-1) $("#mProg").style.width="100%";
+    }
+  } else {
+    mErr++; $("#mInfo").textContent=`ошибок: ${mErr}`;
+    const a=mSel; [a,b].forEach(x=>x.classList.add("wrong"));
+    setTimeout(()=>[a,b].forEach(x=>x.classList.remove("wrong","sel")),450);
+    mSel=null;
+  }
+};
+startMatch();
+
+/* ---------- 3. definitions (multiple choice) ---------- */
+function makeChoice(box, title, hint){
+  let items=[], i=0, score=0, wrong=[];
+  function start(list){ items=shuffle(list); i=0; score=0; wrong=[]; render(); }
+  function render(){
+    if(i>=items.length) return finish();
+    const w=items[i];
+    const opts=shuffle([w,...shuffle(W.filter(x=>x.id!==w.id)).slice(0,3)]);
+    box.innerHTML=`<div class="row" style="justify-content:space-between"><b>${title}</b><span class="muted small">${i+1} / ${items.length} · верно: ${score}</span></div>
+      <div class="progress"><i style="width:${i/items.length*100}%"></i></div>
+      <p class="muted small">${hint}</p>
+      <div class="prompt">${esc(w.def)}</div>
+      <div class="opts">${opts.map(o=>`<button data-id="${o.id}">${esc(o.en)}</button>`).join("")}</div>
+      <div class="fb" id="chFb"></div><div class="row" id="chNext"></div>`;
+    box.querySelector(".opts").onclick=e=>{
+      const b=e.target.closest("button"); if(!b||box.querySelector(".opts").dataset.locked) return;
+      box.querySelector(".opts").dataset.locked=1;
+      const ok=+b.dataset.id===w.id;
+      if(ok) score++; else { wrong.push(w); b.classList.add("wrongc"); }
+      box.querySelector(`.opts button[data-id="${w.id}"]`).classList.add("right");
+      box.querySelector("#chFb").innerHTML=(ok?"✓ Верно! ":"✗ Правильно: <b>"+esc(w.en)+"</b>. ")+`<span class="muted">${esc(w.ru)}</span>`;
+      box.querySelector("#chFb").className="fb "+(ok?"good":"badt");
+      speak(w.en);
+      box.querySelector("#chNext").innerHTML=`<button class="btn primary">Дальше →</button>`;
+      box.querySelector("#chNext button").onclick=()=>{i++;render();};
+    };
+  }
+  function finish(){
+    box.innerHTML=`<div class="result"><div class="score">${score} / ${items.length}</div>
+      <p class="muted">${wrong.length?"Ошибки: "+wrong.map(w=>esc(w.en)).join(", "):"Без ошибок!"}</p>
+      <div class="row" style="justify-content:center"><button class="btn primary" id="a">Заново</button>${wrong.length?'<button class="btn" id="b">Только ошибки</button>':""}</div></div>`;
+    box.querySelector("#a").onclick=()=>start(W);
+    if(wrong.length) box.querySelector("#b").onclick=()=>start(wrong);
+  }
+  start(W);
+}
+makeChoice($("#defsBox"),"Упражнение 3 · Выберите слово по определению","Прочитайте английское определение и выберите подходящее слово или выражение.");
+
+/* ---------- 4–6. typed exercises ---------- */
+function makeTyped(box, cfg){
+  let items=[], i=0, score=0, wrong=[], state="ask", hintLevel=0;
+  function start(list){ items=shuffle(list); i=0; score=0; wrong=[]; render(); }
+  function render(){
+    if(i>=items.length) return finish();
+    const w=items[i]; state="ask"; hintLevel=0;
+    box.innerHTML=`<div class="row" style="justify-content:space-between"><b>${cfg.title}</b><span class="muted small">${i+1} / ${items.length} · верно: ${score}</span></div>
+      <div class="progress"><i style="width:${i/items.length*100}%"></i></div>
+      <p class="muted small">${cfg.hint}</p>
+      <div class="prompt">${cfg.prompt(w)}</div>
+      <input class="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Введите ответ…">
+      <div class="row">
+        <button class="btn primary" data-a="check">Проверить</button>
+        <button class="btn" data-a="hint">Подсказка</button>
+        <button class="btn" data-a="show">Показать ответ</button>
+      </div>
+      <div class="fb" id="tFb"></div>`;
+    const inp=box.querySelector("input");
+    setTimeout(()=>inp.focus({preventScroll:true}),50);
+    if(cfg.autoSpeak) speak(cfg.autoSpeak(w));
+    inp.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); state==="ask"?check():next(); } };
+    box.querySelector(".row:last-of-type").onclick=e=>{
+      const a=e.target.dataset.a; if(!a) return;
+      if(a==="check") state==="ask"?check():next();
+      if(a==="hint") hint();
+      if(a==="show") reveal(false);
+    };
+  }
+  const answersOf=w=>cfg.answers(w);
+  function hint(){
+    if(state!=="ask") return;
+    const w=items[i], a=answersOf(w)[0]; hintLevel++;
+    const n=Math.min(a.length, hintLevel*2);
+    box.querySelector("#tFb").className="fb muted";
+    box.querySelector("#tFb").innerHTML=`Подсказка: <b>${esc(a.slice(0,n))}</b>${"·".repeat(Math.max(0,a.length-n))}`+(cfg.hintExtra?` &nbsp;<span class="small">${cfg.hintExtra(w)}</span>`:"");
+  }
+  function check(){
+    const w=items[i], inp=box.querySelector("input");
+    if(!inp.value.trim()) return;
+    if(matches(inp.value,answersOf(w))){
+      score++; state="done"; inp.classList.add("good");
+      box.querySelector("#tFb").className="fb good";
+      box.querySelector("#tFb").innerHTML=`✓ Верно! ${cfg.after(w)}`;
+      box.querySelector('[data-a="check"]').textContent="Дальше →";
+      speak(cfg.sayAfter(w));
+    } else {
+      inp.classList.add("badi"); setTimeout(()=>inp.classList.remove("badi"),600);
+      box.querySelector("#tFb").className="fb badt";
+      box.querySelector("#tFb").textContent="✗ Пока не то — попробуйте ещё раз или возьмите подсказку.";
+      if(!wrong.includes(w)) wrong.push(w);
+    }
+  }
+  function reveal(){
+    const w=items[i]; if(state!=="ask") return;
+    if(!wrong.includes(w)) wrong.push(w);
+    state="done";
+    box.querySelector("input").value=answersOf(w)[0];
+    box.querySelector("#tFb").className="fb badt";
+    box.querySelector("#tFb").innerHTML=`Ответ: <b>${esc(answersOf(w)[0])}</b>. ${cfg.after(w)}`;
+    box.querySelector('[data-a="check"]').textContent="Дальше →";
+    speak(cfg.sayAfter(w));
+  }
+  function next(){ i++; render(); }
+  function finish(){
+    box.innerHTML=`<div class="result"><div class="score">${score} / ${items.length}</div>
+      <p class="muted">${wrong.length?"Повторить: "+wrong.map(w=>esc(w.en)).join(", "):"Без ошибок!"}</p>
+      <div class="row" style="justify-content:center"><button class="btn primary" id="a">Заново</button>${wrong.length?'<button class="btn" id="b">Только ошибки</button>':""}</div></div>`;
+    box.querySelector("#a").onclick=()=>start(W);
+    if(wrong.length) box.querySelector("#b").onclick=()=>start(wrong);
+  }
+  start(W);
+}
+
+makeTyped($("#gapsBox"),{
+  title:"Упражнение 4 · Заполните пропуск",
+  hint:"Впишите слово или выражение в нужной форме (времена, -ed, -ing, множественное число).",
+  prompt:w=>esc(w.ex).replace("___",'<span class="gap">&nbsp;</span>'),
+  answers:w=>[w.gap,...(w.alts||[])],
+  hintExtra:w=>esc(w.ru),
+  after:w=>`<span class="muted">${esc(w.full)}</span> ${spBtn(w.full)}`,
+  sayAfter:w=>w.full
+});
+
+makeTyped($("#transBox"),{
+  title:"Упражнение 5 · Переведите на английский",
+  hint:"Вспомните английское слово или выражение по переводу. Артикль и частицу to можно не писать.",
+  prompt:w=>esc(w.ru),
+  answers:w=>[w.key,...(w.alts||[])],
+  hintExtra:w=>`<i>${esc(w.def)}</i>`,
+  after:w=>`<b>${esc(w.en)}</b> — <span class="muted">${esc(w.full)}</span> ${spBtn(w.full)}`,
+  sayAfter:w=>w.en
+});
+
+makeTyped($("#dictBox"),{
+  title:"Упражнение 6 · Диктант",
+  hint:"Послушайте и напишите слово или выражение. Нажмите 🔊, чтобы прослушать ещё раз.",
+  prompt:w=>`<div class="row">${spBtn(w.key)} <span class="muted">Прослушайте и запишите</span></div>`,
+  autoSpeak:w=>w.key,
+  answers:w=>[w.key,...(w.alts||[])],
+  hintExtra:w=>esc(w.ru),
+  after:w=>`<b>${esc(w.en)}</b> — <span class="muted">${esc(w.ru)}</span>`,
+  sayAfter:w=>w.key
+});
+
+/* ---------- list ---------- */
+$("#lTable").innerHTML=W.map((w,i)=>`<tr><td>${i+1}. ${esc(w.en)}</td><td>${esc(w.ru)}<div class="muted small">${esc(w.full)}</div></td><td>${spBtn(w.en)}</td></tr>`).join("");
+</script>
+</body>
+</html>
